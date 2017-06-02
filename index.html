@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    
+    <div class="text"></div>
+    <form name="signin">
+        <input type="text" name="username" placeholder="用户名">
+        <input type="email" name="email" placeholder="邮箱">
+        <input type="password" name="password" placeholder="密码">
+        <input type="submit" value="注册">
+    </form>
+
+    <form name="login">
+        <input type="text" name="username" placeholder="用户名">
+        <input type="password" name="password" placeholder="密码">
+        <input type="submit" value="登录">
+    </form>
+
+    <script src="./node_modules/leancloud-storage/dist/av.js"></script>
+    <script>
+        var APP_ID = '5rQ1wnAcvyqvPYUMF0M4VQfw-gzGzoHsz';
+        var APP_KEY = 'LWToa98c1b5UnXbOEfW3fINT';
+        AV.init({
+            appId: APP_ID,
+            appKey: APP_KEY
+        });
+
+
+        var currentUser = AV.User.current()
+        if (currentUser) {
+            //跳转首页
+            var a = document.querySelector('div[class="text"]')
+            a.innerHTML = '欢迎回来,' + currentUser.attributes.username
+            var div = document.createElement('button')
+            div.textContent = '退出'
+            a.appendChild(div)
+            a.children[0].addEventListener('click', function () {
+                AV.User.logOut()
+                window.location.reload()
+                quit.remove()
+            })
+        } else {
+            ////currentUser 为空时，可打开用户注册界面…
+        }
+
+        addEventListener('button', function () {
+            AV.User.logOut()
+            window.location.reload()
+            quit.remove()
+        })
+
+        var formSgnin = document.querySelector('form[name="signin"]')
+        formSgnin.addEventListener('submit', function (e) {
+            e.preventDefault()
+            // 新建 AVUser 对象实例
+            var user = new AV.User();
+            // 设置用户名
+            user.setUsername(formSgnin.username.value); //表单中的name是username,直接这样就能取
+            // 设置密码
+            user.setPassword(formSgnin.password.value);
+            // 设置邮箱
+            user.setEmail(formSgnin.email.value);
+            user.signUp().then(function (loginedUser) {
+                console.log(loginedUser);
+                alert('注册成功')
+                window.location.reload()  //注册成功重新加载当前页面
+            }, function (error) {
+                alert('注册失败')
+            });
+        })
+
+        var formLogin = document.querySelector('form[name="login"]')
+        formLogin.addEventListener('submit', function (e) {
+            e.preventDefault()
+            var username = formLogin.username.value
+            var password = formLogin.password.value
+            AV.User.logIn(username, password).then(function (loginedUser) {
+                console.log(loginedUser);
+                location.reload() 
+            }, function (error) {
+                if(error.code === 210){
+                    alert('用户名和密码不匹配')
+                }else if(error.code === 211){
+                    alert('用户名不存在')
+                }
+            });
+        })
+    </script>
+</body>
+assa
+</html>
